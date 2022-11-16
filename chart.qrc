@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/charts"/>
+    <qresource prefix="/Charts">
+        <file>qtdata.cht</file>
+    </qresource>
+</RCC>
