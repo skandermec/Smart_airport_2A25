@@ -21,13 +21,23 @@ Bagages::Bagages(QString nom_proprietaire,int poids,QString type)
 }
 QString Bagages::getnom_proprietaire(){return nom_proprietaire;}
 int Bagages::getpoids( ){return poids;}
-
 QString Bagages::gettype(){return type;}
+
 void Bagages::setnom_proprietaire(QString nom_proprietaire){this->nom_proprietaire=nom_proprietaire;}
 void Bagages::setpoids(int poids){this->poids=poids;}
 void Bagages::settype(QString type){this->type=type;}
 
+QSqlQueryModel* Bagages::afficher(){
+QSqlQueryModel* model=new QSqlQueryModel();
 
+
+       model->setQuery("SELECT* FROM BAGAGES");
+       model->setHeaderData(0, Qt::Horizontal, QObject::tr("nom_proprietaire"));//ajouter le nom de tableau
+       model->setHeaderData(1, Qt::Horizontal, QObject::tr("poids"));
+       model->setHeaderData(1, Qt::Horizontal, QObject::tr("type"));
+    return model;
+
+}
 
 bool Bagages::ajouter()
 {
@@ -53,17 +63,7 @@ bool Bagages::supprimer(QString nom_proprietaire)
     return query.exec(); }
 
 
-    QSqlQueryModel* Bagages::afficher(){
-    QSqlQueryModel* model=new QSqlQueryModel();
 
-
-           model->setQuery("SELECT* FROM BAGAGES");
-           model->setHeaderData(0, Qt::Horizontal, QObject::tr("nom_proprietaire"));//ajouter le nom de tableau
-           model->setHeaderData(1, Qt::Horizontal, QObject::tr("poids"));
-           model->setHeaderData(1, Qt::Horizontal, QObject::tr("type"));
-        return model;
-
-    }
 
 bool Bagages::modifier(QString nom_proprietaire,int poids,  QString type)
 {
@@ -81,7 +81,7 @@ bool Bagages::modifier(QString nom_proprietaire,int poids,  QString type)
 QSqlQueryModel *Bagages::tribagages()
 {
     QSqlQueryModel * model=new QSqlQueryModel();
- model->setQuery("select * from Bagages order by poids" );
+ model->setQuery("select * from Bagages order by POIDS" );
     model->setHeaderData(0, Qt::Horizontal, QObject::tr("nom_proprietaire"));
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("poids"));
     model->setHeaderData(2, Qt::Horizontal, QObject::tr("type"));

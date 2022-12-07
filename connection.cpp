@@ -1,11 +1,11 @@
-#include "connection.h"
+ #include "connection.h"
 
 Connection::Connection()
 {
 
 }
 
-bool Connection::createconnect()
+bool Connection::createconnection()
 {bool test=false;
 QSqlDatabase db = QSqlDatabase::addDatabase("QODBC");
 db.setDatabaseName("test-bd");

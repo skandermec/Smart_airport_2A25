@@ -1,0 +1,4 @@
+<RCC>
+    <qresource prefix="/charts"/>
+    <qresource prefix="/Charts"/>
+</RCC>
