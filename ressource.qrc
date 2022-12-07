@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>back bag.jpg</file>
+        <file>back bag (1).png</file>
+        <file>back bag (2).png</file>
+    </qresource>
+</RCC>
