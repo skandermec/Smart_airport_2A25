@@ -38,6 +38,7 @@ QSqlQueryModel * salaire1();
 
 
 
+
     private:
 
         int cin,datedenaissance,salaire;

@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui sql
+QT += charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -29,13 +30,19 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     connection.cpp \
-    pieview.cpp
+    notification.cpp \
+    pieview.cpp \
+    voyageur.cpp
 
 HEADERS += \
+    ../gestion des voyageur/Atelier_Connexion/QrCode.hpp \
+    ../gestion des voyageur/Atelier_Connexion/QrCode.hpp \
     employe.h \
         mainwindow.h \
     connection.h \
-    pieview.h
+    notification.h \
+    pieview.h \
+    voyageur.h
 
 FORMS += \
         mainwindow.ui
@@ -45,5 +52,11 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-RESOURCES += \
-    chart.qrc
+RESOURCES +=
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/widgets/richtext/calendar
+INSTALLS += target
+
+DISTFILES += \
+    ../../Downloads/gestion des voyageur (3).zip
+

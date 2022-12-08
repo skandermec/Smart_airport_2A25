@@ -2,19 +2,20 @@
 #include <QApplication>
 #include <QMessageBox>
 #include "connection.h"
-
+#include <QtWidgets>
+#include <QApplication>
 int main(int argc, char *argv[])
 {
 
 
 
 
-
-
-
-
-
     QApplication a(argc, argv);
+
+
+
+
+
 
     Connection c;
 

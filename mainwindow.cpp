@@ -27,14 +27,28 @@
 #include<QSplitter>
 #include <QtWidgets>
 
+#include <QtWidgets>
 
 
 
+#include <QtCharts/QPieSeries>
+#include <QtCharts/QChartView>
+#include <QtCharts/QtCharts>
 
 
+#include <QCalendarWidget>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDateEdit>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLocale>
+#include <QTextCharFormat>
+#include <QWidget>
 
 
-
+#include "voyageur.h"
 
 
 
@@ -50,20 +64,45 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
+
     ui->setupUi(this);
-    QRegularExpression QRegExp( "[a-zA-Z]+");
+   QRegularExpression QRegExp( "[a-zA-Z]+");
         QRegularExpressionValidator *validator = new QRegularExpressionValidator(QRegExp,this);
-        ui->le_nom->setValidator(validator);
+       ui->le_nom->setValidator(validator);
 ui->le_nom2->setValidator(validator);
+ui->nomv_2->setValidator(validator);
+ui->nom_mod_2->setValidator(validator);
+
+
 
  ui->le_cin->setValidator(new QIntValidator(0, 99999999, this));
  ui->le_cin_supp->setValidator(new QIntValidator(100, 99999999, this));
  ui->le_cin_mod->setValidator(new QIntValidator(100, 99999999, this));
  ui->le_cin2->setValidator(new QIntValidator(100, 99999999, this));
+ui->le_date->setValidator(new QIntValidator(0, 99999999, this));
+ ui->le_salaire->setValidator(new QIntValidator(0, 99999999, this));
+
+ ui->le_cin_cher->setValidator(new QIntValidator(0, 99999999, this));
+ ui->le_cin_supp->setValidator(new QIntValidator(0, 99999999, this));
+ui->le_cin2->setValidator(new QIntValidator(0, 99999999, this));
+ui->le_dat2->setValidator(new QIntValidator(0, 99999999, this));
+ui->le_salaire_2->setValidator(new QIntValidator(0, 99999999, this));
+
+ui->passeportv_2->setValidator(new QIntValidator(0, 99999999, this));
+ui->datev_2->setValidator(new QIntValidator(0, 99999999, this));
+ui->passeport_mod_2->setValidator(new QIntValidator(0, 99999999, this));
+ui->passeport_mod2_2->setValidator(new QIntValidator(0, 99999999, this));
+ui->date_mod_2->setValidator(new QIntValidator(0, 99999999, this));
+ui->le_passeport_cher_3->setValidator(new QIntValidator(0, 99999999, this));
+ui->passeportsupp_2->setValidator(new QIntValidator(0, 99999999, this));
+
+
+
+
 
 ui->tab_employe->setModel(E.afficher());
 
-
+ui->tab_voyageur_tri_2->setModel(V.afficher2());
 
 
 
@@ -297,149 +336,60 @@ void MainWindow::on_pb_calcul_clicked()
 
 
 
+void MainWindow::on_pb_LESTAT_clicked()
+{ QSqlQueryModel * model= new QSqlQueryModel();
+    model->setQuery("select * from EMPLOYE where salaire < 300 ");
+    float code=model->rowCount();
+    model->setQuery("select * from EMPLOYE where salaire  between 300 and 2000 ");
+    float codee=model->rowCount();
+    model->setQuery("select * from EMPLOYE where salaire >2000 ");
+    float codeee=model->rowCount();
+    float total=code+codee+codeee;
+    QString a=QString("moins de 300 \t"+QString::number((code*100)/total,'f',2)+"%" );
+    QString b=QString("entre 300 et 2000 \t"+QString::number((codee*100)/total,'f',2)+"%" );
+    QString c=QString("+2000 \t"+QString::number((codeee*100)/total,'f',2)+"%" );
+    QPieSeries *series = new QPieSeries();
+    series->append(a,code);
+    series->append(b,codee);
+    series->append(c,codeee);
+if (code!=0)
+{QPieSlice *slice = series->slices().at(0);
+slice->setLabelVisible();
+slice->setPen(QPen());}
+if ( codee!=0)
+{
+     // Add label, explode and define brush for 2nd slice
+     QPieSlice *slice1 = series->slices().at(1);
+     //slice1->setExploded();
+     slice1->setLabelVisible();
+}
+if(codeee!=0)
+{
+     // Add labels to rest of slices
+     QPieSlice *slice2 = series->slices().at(2);
+     //slice1->setExploded();
+     slice2->setLabelVisible();
+}
+    // Create the chart widget
+    QChart *chart = new QChart();
+    // Add data to chart with title and hide legend
+    chart->addSeries(series);
+    chart->setTitle("Pourcentage Par salaire :Nombre Des employe "+ QString::number(total));
+    chart->legend()->hide();
+    // Used to display the chart
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->resize(1000,500);
+    chartView->show();
+
+}
 
 
+void MainWindow::on_cal_clicked()
 
-
-
-
-
-void MainWindow::on_le_stat_clicked()
 {
 
-        QMenu *fileMenu = new QMenu(tr("&File"), this);
-        QAction *openAction = fileMenu->addAction(tr("&Open..."));
-        openAction->setShortcuts(QKeySequence::Open);
-        QAction *saveAction = fileMenu->addAction(tr("&Save As..."));
-        saveAction->setShortcuts(QKeySequence::SaveAs);
-        QAction *quitAction = fileMenu->addAction(tr("E&xit"));
-        quitAction->setShortcuts(QKeySequence::Quit);
-
-        setupModel();
-        setupViews();
-
-        connect(openAction, &QAction::triggered, this, &MainWindow::openFile);
-        connect(saveAction, &QAction::triggered, this, &MainWindow::saveFile);
-        connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
-
-        menuBar()->addMenu(fileMenu);
-        statusBar();
-
-        loadFile(":/Charts/qtdata.cht");
-
-        setWindowTitle(tr("Chart"));
-        resize(870, 550);
-    }
-
-    void MainWindow::setupModel()
-    {
-        model = new QStandardItemModel(8, 2, this);
-        model->setHeaderData(0, Qt::Horizontal, tr("Label"));
-        model->setHeaderData(1, Qt::Horizontal, tr("Quantity"));
-    }
-
-    void MainWindow::setupViews()
-    {
-        QSplitter *splitter = new QSplitter;
-        QTableView *table = new QTableView;
-        pieChart = new PieView;
-        splitter->addWidget(table);
-        splitter->addWidget(pieChart);
-        splitter->setStretchFactor(0, 0);
-        splitter->setStretchFactor(1, 1);
-
-        table->setModel(model);
-        pieChart->setModel(model);
-
-        QItemSelectionModel *selectionModel = new QItemSelectionModel(model);
-        table->setSelectionModel(selectionModel);
-        pieChart->setSelectionModel(selectionModel);
-
-        QHeaderView *headerView = table->horizontalHeader();
-        headerView->setStretchLastSection(true);
-
-        setCentralWidget(splitter);
-    }
-
-    void MainWindow::openFile()
-    {
-        const QString fileName =
-            QFileDialog::getOpenFileName(this, tr("Choose a data file"), "", "*.cht");
-        if (!fileName.isEmpty())
-            loadFile(fileName);
-    }
-
-    void MainWindow::loadFile(const QString &fileName)
-    {
-        QFile file(fileName);
-        if (!file.open(QFile::ReadOnly | QFile::Text))
-            return;
-
-        QTextStream stream(&file);
-        QString line;
-
-        model->removeRows(0, model->rowCount(QModelIndex()), QModelIndex());
-
-        int row = 0;
-        do {
-            line = stream.readLine();
-            if (!line.isEmpty()) {
-                model->insertRows(row, 1, QModelIndex());
-
-                QStringList pieces = line.split(',', QString::SkipEmptyParts);
-                model->setData(model->index(row, 0, QModelIndex()),
-                               pieces.value(0));
-                model->setData(model->index(row, 1, QModelIndex()),
-                               pieces.value(1));
-                model->setData(model->index(row, 0, QModelIndex()),
-                               QColor(pieces.value(2)), Qt::DecorationRole);
-                row++;
-            }
-        } while (!line.isEmpty());
-
-        file.close();
-        statusBar()->showMessage(tr("Loaded %1").arg(fileName), 2000);
-    }
-
-    void MainWindow::saveFile()
-    {
-        QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save file as"), "", "*.cht");
-
-        if (fileName.isEmpty())
-            return;
-
-        QFile file(fileName);
-        if (!file.open(QFile::WriteOnly | QFile::Text))
-            return;
-
-        QTextStream stream(&file);
-        for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-
-            QStringList pieces;
-
-            pieces.append(model->data(model->index(row, 0, QModelIndex()),
-                                      Qt::DisplayRole).toString());
-            pieces.append(model->data(model->index(row, 1, QModelIndex()),
-                                      Qt::DisplayRole).toString());
-            pieces.append(model->data(model->index(row, 0, QModelIndex()),
-                                      Qt::DecorationRole).toString());
-
-            stream << pieces.join(',') << "\n";
-        }
-
-        file.close();
-        statusBar()->showMessage(tr("Saved %1").arg(fileName), 2000);
-    }
-
-
-
-
-void MainWindow::on_pushButton_3_clicked()
-{
-    //! [0]
-
-        selectedDate = QDate::currentDate();
+    selectedDate = QDate::currentDate();
         fontSize = 10;
 
         QWidget *centralWidget = new QWidget;
@@ -450,7 +400,7 @@ void MainWindow::on_pushButton_3_clicked()
         QComboBox *monthCombo = new QComboBox;
 
         for (int month = 1; month <= 12; ++month)
-            monthCombo->addItem(QDate::longMonthName(month));
+            monthCombo->addItem(QLocale::system().monthName(month));
 
         QDateTimeEdit *yearEdit = new QDateTimeEdit;
         yearEdit->setDisplayFormat("yyyy");
@@ -470,10 +420,12 @@ void MainWindow::on_pushButton_3_clicked()
     //! [2]
 
     //! [3]
-        connect(monthCombo, SIGNAL(activated(int)), this, SLOT(setMonth(int)));
-        connect(yearEdit, SIGNAL(dateChanged(QDate)), this, SLOT(setYear(QDate)));
-        connect(fontSizeSpinBox, SIGNAL(valueChanged(int)),
-                this, SLOT(setFontSize(int)));
+        connect(monthCombo, QOverload<int>::of(&QComboBox::activated),
+                this, &MainWindow::setMonth);
+        connect(yearEdit, &QDateTimeEdit::dateChanged,
+                this, &MainWindow::setYear);
+        connect(fontSizeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+                this, &MainWindow::setFontSize);
     //! [3]
 
         fontSizeSpinBox->setValue(10);
@@ -494,10 +446,11 @@ void MainWindow::on_pushButton_3_clicked()
         centralWidget->setLayout(centralLayout);
 
         setCentralWidget(centralWidget);
-    //! [4]
-    }
 
-//! [5]
+
+
+}
+
 void MainWindow::insertCalendar()
 {
     editor->clear();
@@ -552,7 +505,7 @@ void MainWindow::insertCalendar()
         QTextTableCell cell = table->cellAt(0, weekDay-1);
 //! [11] //! [12]
         QTextCursor cellCursor = cell.firstCursorPosition();
-        cellCursor.insertText(QString("%1").arg(QDate::longDayName(weekDay)), boldFormat);
+        cellCursor.insertText(QLocale::system().dayName(weekDay), boldFormat);
     }
 //! [12]
 
@@ -578,7 +531,7 @@ void MainWindow::insertCalendar()
     cursor.endEditBlock();
 //! [14]
     setWindowTitle(tr("Calendar for %1 %2"
-        ).arg(QDate::longMonthName(selectedDate.month())
+        ).arg(QLocale::system().monthName(selectedDate.month())
         ).arg(selectedDate.year()));
 }
 //! [14]
@@ -607,3 +560,221 @@ void MainWindow::setYear(QDate date)
 }
 //! [17]
 
+
+
+
+
+
+
+//sssssssssssssssssssss
+void MainWindow::on_pb_ajouter_2_clicked()
+{
+    {
+        int N_Passeport=ui->passeportv_2->text().toInt();
+        QString nom=ui->nomv_2->text();
+        QString e_mail=ui->emailv_2->text();
+        int datedenaissance=ui->datev_2->text().toInt();
+
+        Voyageur E(N_Passeport,nom,e_mail,datedenaissance);
+
+    bool test=E.ajouter();
+    QMessageBox msgBox;
+    if(test)
+    {
+
+n.notification_ajout();
+        msgBox.setText("Ajout avec succes.");
+    ui->tab_voyageur_3->setModel(V.afficher2());
+    }
+        else
+            msgBox.setText("Echec d'ajout");
+
+        msgBox.exec();
+
+        }
+}
+
+void MainWindow::on_pb_modifier_2_clicked()
+{
+    Voyageur E1;
+                 E1.setN_Passeport(ui->passeport_mod_2->text().toInt());
+                 bool test=E1.cherche_N_Passeport(E1.getN_Passeport());
+                 if(!test){
+                    // n.notification_modifier();
+                     QMessageBox::critical(nullptr, QObject::tr("nope"),
+                                 QObject::tr("update failed.\n"
+                                             "Click Cancel to exit."), QMessageBox::Cancel);
+
+
+
+                 }
+                 else
+                 {   Voyageur e;
+                     int N_Passeport=ui->passeport_mod2_2->text().toInt();
+                     QString nom=ui->nom_mod_2->text();
+                     QString e_mail=ui->email_mod_2->text();
+                     int datedenaissance=ui->date_mod_2->text().toInt();
+
+                     Voyageur E(N_Passeport,nom,e_mail,datedenaissance);
+                     bool test=E.ajouter();
+
+               if(test)
+     {
+
+                   QMessageBox::information(nullptr, QObject::tr("ok"),
+                               QObject::tr("update successful.\n"
+                                           "update effectuer."), QMessageBox::Cancel);
+                ui->tab_voyageur_3->setModel(V.afficher2());
+               }
+
+
+               else
+
+                   QMessageBox::critical(nullptr, QObject::tr("nope"),
+                               QObject::tr("update failed.\n"
+                                           "Click Cancel to exit."), QMessageBox::Cancel);}
+}
+
+//supprision
+void MainWindow::on_pb_trie_clicked()
+{
+    int N_Passeport =ui->passeportsupp_2->text().toInt();
+       bool test=V.supprimer2(N_Passeport);
+       if(test)
+       {
+           n.notification_supprimer();
+
+          QMessageBox::information(nullptr,QObject::tr("ok"),
+                                   QObject::tr("suppression effectuee \n"
+                                               "click Cancel to exit."), QMessageBox::Cancel);
+      ui->tab_voyageur_3->setModel(V.afficher2());
+       }
+       else
+           QMessageBox::critical(nullptr,QObject::tr("Not ok"),
+                                  QObject::tr("suppression non effectuee.\n"
+                                         "click Cancel to exit."),QMessageBox::Cancel);
+}
+
+void MainWindow::on_recherche_clicked()
+{
+    {
+
+        {
+            Voyageur E1;
+                E1.setN_Passeport(ui->le_passeport_cher_3->text().toInt());
+                bool test1=E1.cherche_N_Passeport(E1.getN_Passeport());
+             ui->tab_employe_cher_4->setModel(E1.afficher5());
+                if(test1){
+
+
+                    QMessageBox::information(nullptr, QObject::tr("ok"),
+                                QObject::tr("numero found.\n"
+                                            "rechercher effectuer."), QMessageBox::Cancel);
+
+
+                }
+                else
+                       QMessageBox::critical(nullptr, QObject::tr("nope"),
+                                   QObject::tr("numero not found .\n"
+                                               "Click Cancel to exit."), QMessageBox::Cancel);
+
+
+
+
+        }
+}
+}
+
+void MainWindow::on_tri_clicked()
+{
+    QMessageBox::information(nullptr, QObject::tr("Ok"),
+                       QObject::tr("tri effectué.\n"
+                                   "Click Cancel to exit."), QMessageBox::Cancel);
+                      ui->tab_voyageur_tri_2->setModel(V.afficher2());
+}
+
+void MainWindow::on_Pdf_clicked()
+{QPdfWriter pdf("C:/Users/Irn0x/Desktop/Atelier_Connexion222/PDF DES VOYAGEURS/PDF DES VOYAGEURS.pdf");
+
+    QPainter painter(&pdf);
+    int i = 4000;
+           painter.setPen(Qt::red);
+           painter.setFont(QFont("Time New Roman", 25));
+           painter.drawText(3000,1400,"Liste Des voyageurs");
+           painter.setPen(Qt::black);
+           painter.setFont(QFont("Time New Roman", 15));
+           painter.drawRect(100,3000,9400,500);
+           painter.setFont(QFont("Time New Roman", 9));
+           painter.drawText(1000,3300,"N_Passeport");
+           painter.drawText(2500,3300,"nom");
+           painter.drawText(4000,3300,"e_mail");
+           painter.drawText(5500,3300,"datedenaissance");
+
+           painter.drawRect(100,3000,9400,9000);
+
+           QSqlQuery query;
+           query.prepare("select * from VOYAGEUR");
+           query.exec();
+           while (query.next())
+           {
+               painter.drawText(1000,i,query.value(0).toString());
+               painter.drawText(2500,i,query.value(1).toString());
+               painter.drawText(4000,i,query.value(2).toString());
+               painter.drawText(5500,i,query.value(3).toString());
+               painter.drawText(7000,i,query.value(4).toString());
+
+
+              i = i + 350;
+           }
+           QMessageBox::information(this, QObject::tr("PDF Enregistré!"),
+           QObject::tr("PDF Enregistré!.\n" "Click Cancel to exit."), QMessageBox::Cancel);
+
+}
+
+void MainWindow::on_pb_statis_clicked()
+{
+    QSqlQueryModel * model= new QSqlQueryModel();
+        model->setQuery("select * from VOYAGEUR where N_Passeport < 26000000 ");
+        float code=model->rowCount();
+        model->setQuery("select * from VOYAGEUR where N_Passeport  between 26000000 and 46000000 ");
+        float codee=model->rowCount();
+        model->setQuery("select * from VOYAGEUR where N_Passeport >46000000");
+        float codeee=model->rowCount();
+        float total=code+codee+codeee;
+        QString a=QString("moins de26000000  \t"+QString::number((code*100)/total,'f',2)+"%" );
+        QString b=QString("entre 26000000 et 46000000  \t"+QString::number((codee*100)/total,'f',2)+"%" );
+        QString c=QString("+46000000  \t"+QString::number((codeee*100)/total,'f',2)+"%" );
+        QPieSeries *series = new QPieSeries();
+        series->append(a,code);
+        series->append(b,codee);
+        series->append(c,codeee);
+    if (code!=0)
+    {QPieSlice *slice = series->slices().at(0);
+    slice->setLabelVisible();
+    slice->setPen(QPen());}
+    if ( codee!=0)
+    {
+         // Add label, explode and define brush for 2nd slice
+         QPieSlice *slice1 = series->slices().at(1);
+         //slice1->setExploded();
+         slice1->setLabelVisible();
+    }
+    if(codeee!=0)
+    {
+         // Add labels to rest of slice
+         QPieSlice *slice2 = series->slices().at(2);
+         //slice1->setExploded();
+         slice2->setLabelVisible();
+    }
+        // Create the chart widget
+        QChart *chart = new QChart();
+        // Add data to chart with title and hide legend
+        chart->addSeries(series);
+        chart->setTitle("Pourcentage Par N_Passeport :Nombre Des voyageur "+ QString::number(total));
+        chart->legend()->hide();
+        // Used to display the chart
+        QChartView *chartView = new QChartView(chart);
+        chartView->setRenderHint(QPainter::Antialiasing);
+        chartView->resize(1000,500);
+        chartView->show();
+}

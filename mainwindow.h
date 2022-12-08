@@ -3,15 +3,22 @@
 #include <QMainWindow>
 #include "employe.h"
 #include<QDate>
+#include <QtCharts/QPieSeries>
+#include <QtCharts/QChartView>
+#include <QtCharts/QtCharts>
+#include <QTextBrowser>
+#include "voyageur.h"
+#include "notification.h"
 
-QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
-class QAbstractItemView;
-class QItemSelectionModel;
-QT_END_NAMESPACE
 QT_BEGIN_NAMESPACE
 class QTextBrowser;
 QT_END_NAMESPACE
+QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
+class QAbstractItemView;
+QT_END_NAMESPACE
+
+
 
 
 
@@ -29,6 +36,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
 
 private slots:
 
@@ -59,20 +67,43 @@ private slots:
 
 
 
-    void on_pb_calendar_clicked();
 
 
 
-    void on_le_stat_clicked();
-    void openFile();
-    void saveFile();
-    void setFontSize(int size);
+
+
+void on_pushButton_3_clicked();
+
+
+
+void on_pb_LESTAT_clicked();
+
+
+void on_cal_clicked();
+
+void setFontSize(int size);
     void setMonth(int month);
     void setYear(QDate date);
-    void on_pushButton_3_clicked();
+
+
+
+    void on_pb_ajouter_2_clicked();
+
+    void on_pb_modifier_2_clicked();
+
+    void on_pb_trie_clicked();
+
+    void on_recherche_clicked();
+
+    void on_tri_clicked();
+
+    void on_Pdf_clicked();
+
+    void on_pb_statis_clicked();
 
 private:
-
+void insertCalendar(); int fontSize; QDate selectedDate;
+QTextBrowser *editor;
 
 
 
@@ -80,20 +111,12 @@ private:
 
     Employe E;
     Employe Etmp;
+    Voyageur V;
+ notification n;
 
 
-    void setupModel();
-    void setupViews();
-    void loadFile(const QString &path);
 
-    QAbstractItemModel *model;
-    QAbstractItemView *pieChart;
-    QItemSelectionModel *selectionModel;
-    void insertCalendar();
 
-    int fontSize;
-    QDate selectedDate;
-    QTextBrowser *editor;
 };
 
 #endif // MAINWINDOW_H

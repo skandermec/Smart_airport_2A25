@@ -4,6 +4,12 @@
 #include <QObject>
 #include <QMessageBox>
 #include <QSqlRecord>
+
+
+#include <QtCharts/QPieSeries>
+#include <QtCharts/QChartView>
+#include <QtCharts/QtCharts>
+
 Employe::Employe()
 {
 cin=0; nom=" "; email=" " ;datedenaissance=0;salaire=0;
@@ -164,7 +170,6 @@ int sum = 0;
 
        return model;
    }
-
 
 
 
